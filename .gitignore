@@ -1,0 +1,49 @@
+# Environment
+.env
+backend/.env
+.env.local
+
+# Dependencies
+node_modules/
+frontend/node_modules/
+tools-venv/
+*.egg-info/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Build output
+frontend/dist/
+frontend/build/
+*.tsbuildinfo
+
+# Database
+*.db
+*.sqlite3
+backend/brahmastra.db
+
+# Reports & scan output
+backend/reports/
+backend/*.txt
+backend/*.html
+results/
+reports/
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/

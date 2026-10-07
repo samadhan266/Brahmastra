@@ -1,0 +1,76 @@
+services:
+  tools:
+    build:
+      context: ./tools-service
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./jsons:/jsons:ro
+      - reports-data:/workspace
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    networks:
+      - brahmastra
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - reports-data:/app/reports
+      - ./jsons:/jsons:ro
+    env_file:
+      - ./backend/.env
+    environment:
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:80,http://localhost:8082
+      - TOOLS_SERVICE_URL=http://tools:9000
+      - TOOLS_DIR=/jsons
+      - SECLISTS_DIR=/jsons/SecLists
+    depends_on:
+      tools:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - brahmastra
+
+  cloud:
+    build:
+      context: ./cloud-service
+    ports:
+      - "9101:9101"
+    env_file:
+      - ./backend/.env
+    environment:
+      - BACKEND_CALLBACK_URL=http://backend:8000/api/v1
+      - CLOUD_MAX_TOKENS=4096
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - brahmastra
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "8082:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - brahmastra
+
+networks:
+  brahmastra:
+    driver: bridge
+
+volumes:
+  reports-data:

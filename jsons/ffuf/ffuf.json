@@ -1,0 +1,138 @@
+{
+  "tool": {
+    "name": "ffuf",
+    "version": "2.1",
+    "path": "Directory Endpoint Scanning/ffuf",
+    "description": "Fast web fuzzer written in Go for directory discovery, parameter fuzzing, VHost enumeration, and subdomain brute-forcing.",
+    "documentation": "README.md",
+    "binary": "ffuf"
+  },
+  "tool_capabilities": {
+    "scan_types": [
+      "directory",
+      "vhost",
+      "parameter",
+      "subdomain",
+      "fuzz"
+    ],
+    "output_formats": [
+      "text",
+      "json",
+      "csv",
+      "ejson"
+    ],
+    "features": [
+      "Directory/file brute-forcing",
+      "VHost enumeration",
+      "GET/POST parameter fuzzing",
+      "Cookie and header fuzzing",
+      "Recursive scanning",
+      "Multi-threaded (configurable)",
+      "Filter by HTTP status code",
+      "Filter by response size/length",
+      "Filter by word count",
+      "Proxy support",
+      "Auto-calibration for false positive reduction",
+      "Input wordlist from stdin"
+    ]
+  },
+  "user_prompts": {
+    "basic_scan": [
+      {
+        "prompt": "Run ffuf on target",
+        "intent": "basic_scan",
+        "command": "ffuf -u http://{target}/FUZZ -w {SECLISTS}/Discovery/Web-Content/common.txt -t 50 -mc 200,301,302,403 2>&1",
+        "description": "ffuf directory brute-force."
+      },
+      {
+        "prompt": "Directory scan with extensions",
+        "intent": "dir_scan",
+        "command": "ffuf -u http://{target}/FUZZ -w {SECLISTS}/Discovery/Web-Content/common.txt -e .php,.html,.txt -t 50 2>&1",
+        "description": "Directory brute-force with file extensions."
+      }
+    ],
+    "vhost": [
+      {
+        "prompt": "VHost enumeration",
+        "intent": "vhost_enum",
+        "command": "ffuf -u http://{target} -H \"Host: FUZZ.{target}\" -w {SECLISTS}/Discovery/DNS/subdomains-top1million-5000.txt -t 50 -fc 200 2>&1",
+        "description": "Virtual host brute-force."
+      }
+    ],
+    "parameter_fuzzing": [
+      {
+        "prompt": "GET parameter fuzzing",
+        "intent": "get_params",
+        "command": "ffuf -u http://{target}/path?FUZZ=1 -w {SECLISTS}/Discovery/Web-Content/burp-parameter-names.txt -t 50 2>&1",
+        "description": "Fuzz GET parameter names."
+      },
+      {
+        "prompt": "POST parameter fuzzing",
+        "intent": "post_params",
+        "command": "ffuf -u http://{target}/path -X POST -d \"FUZZ=test\" -H \"Content-Type: application/x-www-form-urlencoded\" -w {SECLISTS}/Discovery/Web-Content/burp-parameter-names.txt -t 50 2>&1",
+        "description": "Fuzz POST parameter names."
+      }
+    ],
+    "advanced": [
+      {
+        "prompt": "JSON output",
+        "intent": "json_output",
+        "command": "ffuf -u http://{target}/FUZZ -w {SECLISTS}/Discovery/Web-Content/common.txt -o results.json -of json 2>&1",
+        "description": "Save results as JSON."
+      },
+      {
+        "prompt": "Recursive scan",
+        "intent": "recursive",
+        "command": "ffuf -u http://{target}/FUZZ -w {SECLISTS}/Discovery/Web-Content/common.txt -recursion -recursion-depth 2 -t 50 2>&1",
+        "description": "Recursive directory brute-force."
+      }
+    ]
+  },
+  "execution_conditions": {
+    "prerequisites": {
+      "installed": {
+        "check": "ffuf -V",
+        "error_message": "ffuf is not installed."
+      }
+    },
+    "execution_modes": {
+      "dir_scan": {
+        "description": "Directory and file brute-forcing.",
+        "command": "ffuf -u <target>/FUZZ -w <wordlist>"
+      },
+      "vhost_enum": {
+        "description": "Virtual host discovery.",
+        "command": "ffuf -u <target> -H 'Host: FUZZ.<domain>' -w <wordlist>"
+      }
+    },
+    "resource_requirements": {
+      "minimal": {
+        "cpu": "1 core",
+        "ram": "128 MB",
+        "disk": "10 MB"
+      },
+      "recommended": {
+        "cpu": "2 cores",
+        "ram": "512 MB",
+        "disk": "50 MB"
+      }
+    }
+  },
+  "error_situations": [
+    {
+      "error_type": "connection_refused",
+      "error_message": "error sending request",
+      "cause": "Target is down or blocking requests",
+      "solution": "Verify the target is accessible and not blocking automated requests.",
+      "recovery_command": "curl -sI http://{target} | head -5",
+      "user_notification": "Could not connect to target."
+    },
+    {
+      "error_type": "too_many_results",
+      "error_message": "Filtered results exceed",
+      "cause": "Auto-calibration needed or wordlist mismatch",
+      "solution": "Add -ac for auto-calibration or use -fc to filter.",
+      "recovery_command": "ffuf -u http://{target}/FUZZ -w wordlist.txt -ac -t 50 2>&1"
+    }
+  ]
+}

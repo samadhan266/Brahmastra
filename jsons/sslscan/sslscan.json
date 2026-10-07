@@ -1,0 +1,91 @@
+{
+  "tool": {
+    "name": "sslscan",
+    "version": "2.1",
+    "path": "Vulnerability Scanners/sslscan",
+    "description": "Fast SSL/TLS scanner that checks supported ciphers, certificate details, protocol versions, and known vulnerabilities like Heartbleed.",
+    "documentation": "README.md",
+    "binary": "sslscan"
+  },
+  "tool_capabilities": {
+    "scan_types": [
+      "basic",
+      "full",
+      "ciphers_only"
+    ],
+    "output_formats": [
+      "text",
+      "xml"
+    ],
+    "scan_features": [
+      "SSL/TLS protocol version detection",
+      "Cipher suite enumeration",
+      "Certificate details extraction",
+      "Heartbleed vulnerability check",
+      "TLS compression check",
+      "Renegotiation support check",
+      "OCSP stapling detection"
+    ]
+  },
+  "user_prompts": {
+    "basic_scan": [
+      {
+        "prompt": "Run sslscan on target",
+        "intent": "basic_scan",
+        "command": "sslscan {target} 2>&1",
+        "description": "sslscan {target} 2>&1"
+      },
+      {
+        "prompt": "Scan with certificate details",
+        "intent": "full_scan",
+        "command": "sslscan --show-certificate --no-heartbleed {target} 2>&1",
+        "description": "Show certificate info, skip heartbleed test."
+      }
+    ],
+    "advanced_scan": [
+      {
+        "prompt": "Check all ciphers",
+        "intent": "ciphers",
+        "command": "sslscan --tlsall --show-certificate {target} 2>&1",
+        "description": "Test all TLS versions and show certificate."
+      },
+      {
+        "prompt": "Scan on specific port",
+        "intent": "port_scan",
+        "command": "sslscan --port 8443 {target} 2>&1",
+        "description": "Scan non-default SSL port."
+      },
+      {
+        "prompt": "Output as XML",
+        "intent": "xml_output",
+        "command": "sslscan --xml=results.xml {target} 2>&1",
+        "description": "Save results to XML file."
+      }
+    ]
+  },
+  "execution_conditions": {
+    "prerequisites": {
+      "openssl_installed": {
+        "check": "openssl version",
+        "error_message": "OpenSSL is required."
+      }
+    },
+    "resource_requirements": {
+      "minimal": {
+        "cpu": "1 core",
+        "ram": "64 MB",
+        "disk": "10 MB"
+      }
+    }
+  },
+  "error_situations": [
+    {
+      "error_type": "connection_failed",
+      "error_message": "Failed to connect",
+      "cause": "No SSL/TLS service on target",
+      "solution": "Verify target is running HTTPS and port is correct.",
+      "recovery_command": "curl -sI https://{target} | head -5",
+      "user_notification": "Could not connect. Target may not support SSL/TLS."
+    }
+  ]
+}

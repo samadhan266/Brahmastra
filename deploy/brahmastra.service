@@ -1,0 +1,17 @@
+[Unit]
+Description=Brahmastra AI Pentest Platform
+After=network.target
+
+[Service]
+Type=simple
+User=brahmastra
+WorkingDirectory=/opt/brahmastra/backend
+EnvironmentFile=/opt/brahmastra/backend/.env
+ExecStart=/opt/brahmastra/backend/tools-venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

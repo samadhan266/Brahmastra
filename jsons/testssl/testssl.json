@@ -1,0 +1,127 @@
+{
+  "tool": {
+    "name": "testssl",
+    "version": "3.2",
+    "path": "Vulnerability Scanners/testssl",
+    "description": "Comprehensive SSL/TLS configuration assessment tool that checks protocols, ciphers, vulnerabilities (Heartbleed, ROBOT, CRIME, etc.), and certificate issues.",
+    "documentation": "README.md",
+    "binary": "testssl"
+  },
+  "tool_capabilities": {
+    "scan_types": [
+      "basic",
+      "full",
+      "stealth",
+      "cipher_only",
+      "protocol_only"
+    ],
+    "output_formats": [
+      "text",
+      "json",
+      "csv",
+      "html"
+    ],
+    "scan_features": [
+      "SSL/TLS protocol support detection",
+      "Cipher suite enumeration and grading",
+      "Vulnerability checks (Heartbleed, CCS, ROBOT, CRIME, BREACH)",
+      "Certificate validation and chain analysis",
+      "HSTS and HPKP header checks",
+      "HTTP security headers analysis",
+      "Perfect Forward Secrecy assessment",
+      "OCSP stapling check",
+      "Server default DH parameter check"
+    ],
+    "test_categories": [
+      "protocols",
+      "ciphers",
+      "vulnerabilities",
+      "certificate",
+      "headers"
+    ]
+  },
+  "user_prompts": {
+    "basic_scan": [
+      {
+        "prompt": "Run testssl on target",
+        "intent": "basic_scan",
+        "command": "testssl {target} 2>&1",
+        "description": "testssl {target} 2>&1"
+      },
+      {
+        "prompt": "Quick protocol check",
+        "intent": "protocol_check",
+        "command": "testssl --protocols {target} 2>&1",
+        "description": "Check supported TLS versions only."
+      }
+    ],
+    "vulnerability_scan": [
+      {
+        "prompt": "Check vulnerabilities only",
+        "intent": "vuln_check",
+        "command": "testssl --vulnerable {target} 2>&1",
+        "description": "Check for known TLS vulnerabilities."
+      },
+      {
+        "prompt": "Full scan with HTML report",
+        "intent": "full_html",
+        "command": "testssl --full --htmlfile report.html {target} 2>&1",
+        "description": "Full scan with HTML report output."
+      },
+      {
+        "prompt": "Check ciphers",
+        "intent": "ciphers",
+        "command": "testssl --ciphers {target} 2>&1",
+        "description": "Enumerate and grade cipher suites."
+      }
+    ],
+    "output_options": [
+      {
+        "prompt": "Save JSON results",
+        "intent": "json_output",
+        "command": "testssl --jsonfile results.json {target} 2>&1",
+        "description": "Output in JSON format."
+      },
+      {
+        "prompt": "CSV output",
+        "intent": "csv_output",
+        "command": "testssl --csvfile results.csv {target} 2>&1",
+        "description": "Export findings to CSV."
+      }
+    ]
+  },
+  "execution_conditions": {
+    "prerequisites": {
+      "bash_installed": {
+        "check": "bash --version",
+        "error_message": "Bash is required."
+      },
+      "openssl_installed": {
+        "check": "openssl version",
+        "error_message": "OpenSSL is required for cipher checks."
+      }
+    },
+    "resource_requirements": {
+      "minimal": {
+        "cpu": "1 core",
+        "ram": "128 MB",
+        "disk": "20 MB"
+      },
+      "full_scan": {
+        "cpu": "1 core",
+        "ram": "256 MB",
+        "disk": "50 MB"
+      }
+    }
+  },
+  "error_situations": [
+    {
+      "error_type": "no_response",
+      "error_message": "openssl s_client connect error",
+      "cause": "Host unreachable or port closed",
+      "solution": "Verify the target supports HTTPS on the default port.",
+      "recovery_command": "openssl s_client -connect {target}:443 -tlsextdebug 2>&1 </dev/null",
+      "user_notification": "Could not establish TLS connection."
+    }
+  ]
+}

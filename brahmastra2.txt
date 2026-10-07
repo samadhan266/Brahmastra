@@ -1,0 +1,11 @@
+# 1. Start Backend (port 8000)
+cd /home/samadhan/brahmastra/backend
+setsid nohup python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload > /tmp/backend.log 2>&1 &
+
+# 2. Start Frontend (port 3000)
+cd /home/samadhan/brahmastra/frontend
+setsid nohup npx vite --host 0.0.0.0 --port 3000 > /tmp/frontend.log 2>&1 &
+
+# 3. Check status
+curl -s http://localhost:8000/api/health  # backend
+curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000/  # frontend

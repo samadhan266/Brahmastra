@@ -1,0 +1,32 @@
+Perform a complete security assessment on " https://www.emyntra.com ". Load the bb-methodology skill and systematically test for all vulnerability classes including:
+
+1. Recon: subdomains, technologies, endpoints
+2. Authentication flaws (ATO, brute force, MFA bypass)
+3. Authorization (IDOR, privilege escalation, BOLA)
+4. Injection (SQLi, XSS, XXE, SSTI, command injection)
+5. Business logic (race conditions, price manipulation)
+6. Server-side (SSRF, file upload, deserialization)
+7. Session management (fixation, token leakage)
+8. API security (mass assignment, rate limiting)
+9. Infrastructure (CORS, cache poisoning, subdomain takeover)
+10. Cloud misconfigurations
+
+For each finding, create a proof of concept and rate severity using CVSS 3.1.
+
+
+
+# 1. Start Backend (port 8000)
+cd /home/samadhan/brahmastra/backend
+setsid nohup python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload > /tmp/backend.log 2>&1 &
+
+# 2. Start Frontend (port 3000)
+cd /home/samadhan/brahmastra/frontend
+setsid nohup npx vite --host 0.0.0.0 --port 3000 > /tmp/frontend.log 2>&1 &
+
+# 3. Check status
+curl -s http://localhost:8000/api/health  # backend
+curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000/  # frontend
+
+
+
+

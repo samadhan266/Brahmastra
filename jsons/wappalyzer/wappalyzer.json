@@ -1,0 +1,80 @@
+{
+  "tool": {
+    "name": "wappalyzer",
+    "version": "6.x",
+    "path": "Reconnaissance Fingerprinting/wappalyzer",
+    "description": "Website technology fingerprinting tool that identifies CMS, frameworks, analytics tools, CDNs, and other web technologies in use.",
+    "documentation": "README.md",
+    "binary": "wappalyzer"
+  },
+  "tool_capabilities": {
+    "scan_types": [
+      "basic",
+      "full"
+    ],
+    "output_formats": [
+      "text",
+      "json"
+    ],
+    "detection_categories": [
+      "CMS (WordPress, Joomla, Drupal, etc.)",
+      "JavaScript frameworks (React, Vue, Angular)",
+      "Web servers (Apache, Nginx, IIS)",
+      "Analytics (Google Analytics, Hotjar)",
+      "CDNs (Cloudflare, Akamai, Fastly)",
+      "Libraries (jQuery, Bootstrap, FontAwesome)",
+      "E-commerce platforms (Shopify, WooCommerce)",
+      "Authentication services (Okta, Auth0)",
+      "Security services (WAFs, bot detection)"
+    ]
+  },
+  "user_prompts": {
+    "basic_scan": [
+      {
+        "prompt": "Run wappalyzer on target",
+        "intent": "basic_scan",
+        "command": "wappalyzer http://{target} 2>&1",
+        "description": "wappalyzer http://{target} 2>&1"
+      },
+      {
+        "prompt": "Full technology scan",
+        "intent": "full_scan",
+        "command": "wappalyzer https://{target} --recursive 2>&1",
+        "description": "Recursive scan of sub-paths."
+      }
+    ],
+    "extended": [
+      {
+        "prompt": "JSON output",
+        "intent": "json_output",
+        "command": "wappalyzer https://{target} --json 2>&1",
+        "description": "Get technology stack as JSON."
+      }
+    ]
+  },
+  "execution_conditions": {
+    "prerequisites": {
+      "node_installed": {
+        "check": "node -v",
+        "error_message": "Node.js is required if using the npm version."
+      }
+    },
+    "resource_requirements": {
+      "minimal": {
+        "cpu": "1 core",
+        "ram": "128 MB",
+        "disk": "20 MB"
+      }
+    }
+  },
+  "error_situations": [
+    {
+      "error_type": "no_response",
+      "error_message": "Unable to fetch URL",
+      "cause": "Target is down or unreachable",
+      "solution": "Verify target is accessible.",
+      "recovery_command": "curl -sI http://{target} | head -5",
+      "user_notification": "Could not reach the target URL."
+    }
+  ]
+}

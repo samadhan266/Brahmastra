@@ -1,0 +1,125 @@
+{
+  "tool": {
+    "name": "wpscan",
+    "version": "3.8",
+    "path": "Vulnerability Scanners/wpscan",
+    "description": "WordPress vulnerability scanner that detects plugin/theme versions, vulnerable components, user enumeration, and security misconfigurations.",
+    "documentation": "README.md",
+    "binary": "wpscan"
+  },
+  "tool_capabilities": {
+    "scan_types": [
+      "basic",
+      "aggressive",
+      "stealth"
+    ],
+    "output_formats": [
+      "text",
+      "json",
+      "cli"
+    ],
+    "scan_features": [
+      "WordPress version detection",
+      "Plugin enumeration",
+      "Theme enumeration",
+      "User enumeration",
+      "Vulnerability lookup (wpvulndb)",
+      "Password brute force",
+      "Timthumb detection",
+      "Config backup detection",
+      "DB export detection"
+    ]
+  },
+  "user_prompts": {
+    "basic_scan": [
+      {
+        "prompt": "Run wpscan on target",
+        "intent": "basic_scan",
+        "command": "wpscan --url http://{target} --no-update 2>&1",
+        "description": "wpscan --url http://{target} --no-update 2>&1"
+      },
+      {
+        "prompt": "Scan with vulnerability database",
+        "intent": "vuln_scan",
+        "command": "wpscan --url http://{target} --api-token YOUR_TOKEN --no-update 2>&1",
+        "description": "Include WPScan vulnerability database results."
+      }
+    ],
+    "enumeration": [
+      {
+        "prompt": "Enumerate all plugins",
+        "intent": "enumerate_plugins",
+        "command": "wpscan --url http://{target} --enumerate p --no-update 2>&1",
+        "description": "Enumerate installed plugins."
+      },
+      {
+        "prompt": "Enumerate themes",
+        "intent": "enumerate_themes",
+        "command": "wpscan --url http://{target} --enumerate t --no-update 2>&1",
+        "description": "Enumerate installed themes."
+      },
+      {
+        "prompt": "Enumerate users",
+        "intent": "enumerate_users",
+        "command": "wpscan --url http://{target} --enumerate u --no-update 2>&1",
+        "description": "Enumerate WordPress users."
+      },
+      {
+        "prompt": "Full enumeration",
+        "intent": "full_enum",
+        "command": "wpscan --url http://{target} --enumerate vp,vt,u --plugins-detection aggressive --no-update 2>&1",
+        "description": "Aggressive enumeration of plugins, themes, and users."
+      }
+    ],
+    "brute_force": [
+      {
+        "prompt": "Brute force wp-admin",
+        "intent": "brute_force",
+        "command": "wpscan --url http://{target} --passwords /usr/share/wordlists/rockyou.txt --usernames admin --no-update 2>&1",
+        "description": "Brute force admin password."
+      }
+    ]
+  },
+  "execution_conditions": {
+    "prerequisites": {
+      "ruby_installed": {
+        "check": "ruby -v",
+        "error_message": "Ruby is required to run wpscan."
+      }
+    },
+    "execution_modes": {
+      "basic": {
+        "description": "Standard WordPress fingerprinting and vulnerability scan.",
+        "command": "wpscan --url <target>"
+      },
+      "aggressive": {
+        "description": "Aggressive plugin detection with passive and active checks.",
+        "command": "wpscan --url <target> --plugins-detection aggressive"
+      }
+    },
+    "resource_requirements": {
+      "minimal": {
+        "cpu": "1 core",
+        "ram": "256 MB",
+        "disk": "50 MB"
+      }
+    }
+  },
+  "error_situations": [
+    {
+      "error_type": "connection_failed",
+      "error_message": "Unable to connect",
+      "cause": "Target is down or not a WordPress site",
+      "solution": "Verify the target is running WordPress and is accessible.",
+      "recovery_command": "curl -sI http://{target} | head -5",
+      "user_notification": "Could not connect to target. Make sure it's a WordPress site."
+    },
+    {
+      "error_type": "rate_limited",
+      "error_message": "429 Too Many Requests",
+      "cause": "WAF or rate limiting",
+      "solution": "Add --random-user-agent or slow down with --request-timeout.",
+      "recovery_command": "wpscan --url http://{target} --random-user-agent --throttle 2000 --no-update 2>&1"
+    }
+  ]
+}
